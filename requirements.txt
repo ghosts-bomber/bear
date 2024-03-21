@@ -1,0 +1,5 @@
+certifi==2020.6.20
+cyber_record==0.1.12
+PyQt5==5.15.10
+PyQt_Fluent_Widgets==1.5.1
+Requests==2.31.0
