@@ -1,3 +1,3 @@
 ## 运行方法
-* pip install -r requirements
+* pip3 install -r requirements.txt
 * python3 window.py
