@@ -3,7 +3,7 @@ from abc import abstractmethod
 class ResultType(Enum):
     TEXT = 0
     IMAGE = 1
-    HYPER_TEXT = 2
+    TEXT_AND_NUM = 2
 
 class IResult:
     def __init__(self) -> None:
@@ -29,3 +29,15 @@ class TextResult(IResult):
     def GetResult(self):
         return self.result 
 
+class TextWithNumResult(IResult):
+    def __init__(self,num:int,result:str) -> None:
+        super().__init__()
+        self.result = self.gen_result(num,result)
+    def GetResultType(self):
+        return ResultType.TEXT_AND_NUM
+    def SetResult(self,result)->None:
+        self.result = result
+    def GetResult(self):
+        return self.result 
+    def gen_result(self,num:int,result:str)->str:
+        return str(num)+":*:"+result

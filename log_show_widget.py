@@ -7,6 +7,36 @@ from large_text_edit import LargeTextEdit
 import os
 from tab_widget import TabWidget
 from Result import ResultType
+import logging
+
+class ResultTextEdit(QTextEdit):
+    sig_select_line = pyqtSignal(str)
+    sig_jump_line = pyqtSignal(int)
+    def __init__(self, parent=None):
+        super(ResultTextEdit, self).__init__(parent)
+        self.sig_select_line.connect(self.process_select_line_text)
+    def process_select_line_text(self,text):
+        parts = text.split(":*:")
+        if len(parts) > 1:
+            extracted_part = parts[0]
+            print("Extracted:", extracted_part)
+            # check is num
+            if extracted_part.isdigit():
+                num = int(extracted_part)
+                logging.info(f'emit jump line num:{num}')
+                self.sig_jump_line.emit(num)
+
+    def mousePressEvent(self, event):
+        if event.modifiers() & Qt.ControlModifier:
+            cursor = self.cursorForPosition(event.pos())
+            cursor.select(cursor.LineUnderCursor)
+            block = cursor.block()
+            line_number = block.blockNumber()
+            text = block.text()
+            logging.debug(f"select line text:{text}")
+            self.sig_select_line.emit(text)
+        else:
+            super(ResultTextEdit, self).mousePressEvent(event)
 
 class LogTextProcessWidget(QWidget):
     def __init__(self, text_data,parent=None) -> None:
@@ -14,12 +44,13 @@ class LogTextProcessWidget(QWidget):
         self.init_ui()
         self.large_text_edit = LargeTextEdit(text_data,self)
         self.splitter.addWidget(self.large_text_edit)
-        self.plugin_result_view = QTextEdit(self)
+        self.plugin_result_view = ResultTextEdit(self)
         self.splitter.addWidget(self.plugin_result_view)
 
         self.plugin_result_view.setReadOnly(True)
         self.plugin_result_view.setWordWrapMode(QTextOption.NoWrap)
         self.plugin_result_view.hide()
+        self.plugin_result_view.sig_jump_line.connect(self.large_text_edit.line_jump)
 
         self.large_text_edit.sig_plugin_results.connect(self.show_result)
 
@@ -33,7 +64,7 @@ class LogTextProcessWidget(QWidget):
     def show_result(self,results):
         self.plugin_result_view.show()
         for item in results:
-            if item.GetResultType() == ResultType.TEXT:
+            if item.GetResultType() == ResultType.TEXT or item.GetResultType() == ResultType.TEXT_AND_NUM:
                 self.plugin_result_view.append(item.GetResult())
         
         self.plugin_result_view.append('\n\n')

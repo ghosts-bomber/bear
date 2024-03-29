@@ -107,7 +107,7 @@ class LargeTextEdit(QWidget):
         
         self.start = 0
         self.count = 0
-        self.search_widget.jump_line.connect(self.search_jump)
+        self.search_widget.jump_line.connect(self.line_jump)
         self.search_widget.show_search.connect(self.show_search_result_widget)
         self.setMouseTracking(True)
         # self.installEventFilter(self)
@@ -127,6 +127,7 @@ class LargeTextEdit(QWidget):
         text_edit_layout.addWidget(self.line_number_edit)
         text_edit_layout.addWidget(self.main_edit)
         text_edit_layout.addWidget(self.scroll_bar)
+        self.main_edit.verticalScrollBar().setDisabled(True)
         
         main_layout.setSpacing(6)
         main_layout.setContentsMargins(0,0,0,0)
@@ -165,10 +166,10 @@ class LargeTextEdit(QWidget):
         self.line_number_edit.setMinimumWidth(text_width)
  
     def scroll_bar_value_change(self,value):
-        count = self.get_container_count()
+        self.count = self.get_container_count()
+        count = self.count+100
         text = self.text_data.get_lines_combine(value,count)
         self.start = value
-        self.count = count
         self.main_edit.setText(text)
         line_num = ''
         for i in range(value,value+count):
@@ -195,7 +196,7 @@ class LargeTextEdit(QWidget):
         main_edit_font_metrics = QFontMetrics(main_edit_font)
         line_height = main_edit_font_metrics.lineSpacing()
         max_lines = main_edit_size.height() // line_height
-        return max_lines
+        return max_lines 
 
     def show_search_widget(self):
         logging.info("show search")
@@ -251,9 +252,10 @@ class LargeTextEdit(QWidget):
         self.high_light_search()
         self.search_widget.set_search_result_info(lines,current_nu+1)
 
-    def search_jump(self,line_number):
+    def line_jump(self,line_number):
         if line_number >=self.start and line_number < self.start+self.count:
             return
+        logging.info(f'line jump num:{line_number}')
         self.scroll_bar.setValue(line_number)
     
     def show_search_result_widget(self):
