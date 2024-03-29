@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QStackedWidget, QTextEdit,QWidget,QPushButton,QHBoxLayout,QVBoxLayout,QFileDialog,QSplitter
 from PyQt5.QtCore import Qt,pyqtSignal
-from PyQt5.QtGui import QColor,QTextOption
+from PyQt5.QtGui import QTextCharFormat, QTextCursor,QTextBlock,QCursor, QTextOption,QFontMetrics,QKeySequence,QColor
 from qfluentwidgets import TabBar,TabCloseButtonDisplayMode
 from text_data import TextData
 from large_text_edit import LargeTextEdit
@@ -25,6 +25,25 @@ class ResultTextEdit(QTextEdit):
                 num = int(extracted_part)
                 logging.info(f'emit jump line num:{num}')
                 self.sig_jump_line.emit(num)
+ 
+    def highlight_line(self, line_number):
+        block = self.document().findBlockByLineNumber(line_number)
+
+        highlight_format = QTextCharFormat()
+        highlight_format.setBackground(Qt.yellow)
+
+        cursor = self.textCursor()
+        cursor.setPosition(block.position())
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        cursor.mergeCharFormat(highlight_format)
+
+    def clean_highlight(self):
+        cursor = QTextCursor(self.document())
+        cursor.setPosition(0)
+        cursor.movePosition(QTextCursor.End,QTextCursor.KeepAnchor)
+        format = QTextCharFormat()
+        format.setBackground(QColor("white"))
+        cursor.setCharFormat(format)
 
     def mousePressEvent(self, event):
         if event.modifiers() & Qt.ControlModifier:
@@ -34,6 +53,8 @@ class ResultTextEdit(QTextEdit):
             line_number = block.blockNumber()
             text = block.text()
             logging.debug(f"select line text:{text}")
+            self.clean_highlight()
+            self.highlight_line(line_number)
             self.sig_select_line.emit(text)
         else:
             super(ResultTextEdit, self).mousePressEvent(event)
@@ -50,7 +71,7 @@ class LogTextProcessWidget(QWidget):
         self.plugin_result_view.setReadOnly(True)
         self.plugin_result_view.setWordWrapMode(QTextOption.NoWrap)
         self.plugin_result_view.hide()
-        self.plugin_result_view.sig_jump_line.connect(self.large_text_edit.line_jump)
+        self.plugin_result_view.sig_jump_line.connect(self.large_text_edit.jump_line)
 
         self.large_text_edit.sig_plugin_results.connect(self.show_result)
 

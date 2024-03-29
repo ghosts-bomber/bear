@@ -107,7 +107,7 @@ class LargeTextEdit(QWidget):
         
         self.start = 0
         self.count = 0
-        self.search_widget.jump_line.connect(self.line_jump)
+        self.search_widget.jump_line.connect(self.jump_line)
         self.search_widget.show_search.connect(self.show_search_result_widget)
         self.setMouseTracking(True)
         # self.installEventFilter(self)
@@ -175,8 +175,8 @@ class LargeTextEdit(QWidget):
         for i in range(value,value+count):
             line_num = line_num+str(i+1)+'\n'
         self.line_number_edit.setText(line_num)
-        self.clean_high_light()
-        self.high_light_search()
+        self.clean_highlight()
+        self.highlight_search()
 
     def wheelEvent(self,event):
         delta = event.angleDelta().y()
@@ -209,9 +209,9 @@ class LargeTextEdit(QWidget):
     def hide_search_widget(self):
         self.search_widget.hide()
         self.search_widget.clear()
-        self.clean_high_light()
+        self.clean_highlight()
 
-    def clean_high_light(self):
+    def clean_highlight(self):
         cursor = QTextCursor(self.main_edit.document())
         cursor.setPosition(0)
         cursor.movePosition(QTextCursor.End,QTextCursor.KeepAnchor)
@@ -219,7 +219,7 @@ class LargeTextEdit(QWidget):
         format.setBackground(QColor("white"))
         cursor.setCharFormat(format)
 
-    def high_light_search(self):
+    def highlight_search(self):
         if not self.search_widget.isVisible():
             return 
         text = self.search_widget.get_search_text() 
@@ -233,7 +233,7 @@ class LargeTextEdit(QWidget):
                     cursor.mergeCharFormat(format)
 
     def search_text(self):
-        self.clean_high_light() 
+        self.clean_highlight() 
         text = self.search_widget.get_search_text()
         lines = self.text_data.search(text)
         if len(lines) <=0:
@@ -249,15 +249,30 @@ class LargeTextEdit(QWidget):
                 break
         if b_jump:
             self.scroll_bar.setValue(lines[current_nu])
-        self.high_light_search()
+        self.highlight_search()
         self.search_widget.set_search_result_info(lines,current_nu+1)
 
-    def line_jump(self,line_number):
+    def jump_line(self,line_number):
         if line_number >=self.start and line_number < self.start+self.count:
             return
         logging.info(f'line jump num:{line_number}')
-        self.scroll_bar.setValue(line_number)
+        dst_number = line_number - self.count//2
+        if dst_number<0:
+            dst_number = 0
+        self.scroll_bar.setValue(dst_number)
+        self.highlight_line(line_number-dst_number)
     
+    def highlight_line(self, line_number):
+        block = self.main_edit.document().findBlockByLineNumber(line_number)
+
+        highlight_format = QTextCharFormat()
+        highlight_format.setBackground(Qt.yellow)
+
+        cursor = self.main_edit.textCursor()
+        cursor.setPosition(block.position())
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        cursor.mergeCharFormat(highlight_format)
+
     def show_search_result_widget(self):
         lines = self.search_widget.get_search_result_lines()
         search_result = self.text_data.combine_search_result(lines)
