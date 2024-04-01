@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QStackedWidget, QTextEdit,QWidget,QPushButton,QHBoxLayout,QVBoxLayout,QFileDialog,QSplitter
 from PyQt5.QtCore import Qt,pyqtSignal
-from PyQt5.QtGui import QTextCharFormat, QTextCursor,QTextBlock,QCursor, QTextOption,QFontMetrics,QKeySequence,QColor
+from PyQt5.QtGui import QTextCharFormat, QTextCursor,QTextBlock,QCursor, QTextOption,QFontMetrics,QKeySequence,QColor,QPixmap
 from qfluentwidgets import TabBar,TabCloseButtonDisplayMode
 from text_data import TextData
 from large_text_edit import LargeTextEdit
@@ -87,7 +87,11 @@ class LogTextProcessWidget(QWidget):
         for item in results:
             if item.GetResultType() == ResultType.TEXT or item.GetResultType() == ResultType.TEXT_AND_NUM:
                 self.plugin_result_view.append(item.GetResult())
-        
+            elif item.GetResultType() == ResultType.IMAGE:
+                self.plugin_result_view.append('\n')
+                cursor = self.plugin_result_view.textCursor()
+                cursor.movePosition(QTextCursor.End)
+                cursor.insertImage(item.GetResult())
         self.plugin_result_view.append('\n\n')
 
 
