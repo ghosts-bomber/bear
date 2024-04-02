@@ -1,5 +1,8 @@
 certifi==2020.6.20
 cyber_record==0.1.12
+matplotlib==3.7.1
+numpy==1.24.2
 PyQt5==5.15.10
 PyQt_Fluent_Widgets==1.5.1
+pytz==2022.1
 Requests==2.31.0
