@@ -69,6 +69,7 @@ class LogTabWidget(TabWidget):
                             text='New tab',
                             onClick=lambda:self.stack_widget.setCurrentWidget(open_log_widget)
                             )
+        self.key_widget[key] = open_log_widget
         self.tab_bar.setCurrentTab(key)
         self.stack_widget.setCurrentWidget(open_log_widget)
 
@@ -86,6 +87,7 @@ class RecordTabWidget(TabWidget):
                             text='New tab',
                             onClick=lambda:self.stack_widget.setCurrentWidget(open_record_widget)
                             )
+        self.key_widget[key] = open_record_widget
         self.tab_bar.setCurrentTab(key)
         self.stack_widget.setCurrentWidget(open_record_widget)
 

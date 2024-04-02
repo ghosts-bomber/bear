@@ -114,6 +114,7 @@ class LogShowWidget(TabWidget):
                                     text=file_name,
                                     onClick=lambda:self.stack_widget.setCurrentWidget(log_text_widget)
                                     )
+            self.key_widget[key] = log_text_widget
             self.tab_bar.setCurrentTab(key)
             self.tab_bar.currentTab().setToolTip(file_name)
             self.stack_widget.setCurrentWidget(log_text_widget)

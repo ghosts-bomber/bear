@@ -14,7 +14,7 @@ from plugins.roadtest_analyse_lib.PositionAnalyse import AnalysePosition
 from plugins.roadtest_analyse_lib.LidarUdpPacketAnalyse import AnalyseLidarUdpPacket
 
 
-class LidarWheelState(IPlugin):
+class GnssLidarWheelStatic(IPlugin):
     def __init__(self) -> None:
         pass
 

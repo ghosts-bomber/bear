@@ -6,11 +6,13 @@ class TabWidget(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.tab_num = 0
+        self.key_widget = {}
         self.init_ui()
         self.tab_bar.setMovable(True)
         self.tab_bar.setScrollable(True)
         self.tab_bar.setTabShadowEnabled(True)
         self.tab_bar.setCloseButtonDisplayMode(TabCloseButtonDisplayMode.ON_HOVER)
+        self.tab_bar.tabCloseRequested.connect(self.tab_item_close)
 
     def init_ui(self):
         self.main_v_layout = QVBoxLayout(self)
@@ -27,4 +29,11 @@ class TabWidget(QWidget):
         self.tab_num = self.tab_num +1
         return key
 
+    def tab_item_close(self,index):
+        key = self.tab_bar.tabItem(index).routeKey()
+        if key in self.key_widget:
+            self.key_widget[key].close()
+            self.key_widget.pop(key)
+        self.tab_bar.removeTab(index)
+        self.tab_bar.currentTab().click()
 

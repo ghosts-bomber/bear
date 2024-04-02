@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QRegularExpression
 
 class TextData:
     def __init__(self,text) -> None:
@@ -27,6 +28,14 @@ class TextData:
         ret_list = []
         for index,line in enumerate(self.lines):
             if line.find(text) != -1:
+                ret_list.append(index)
+        return ret_list
+
+    def search_use_re(self,text):
+        ret_list = []
+        pattern = QRegularExpression(text)
+        for index,line in enumerate(self.lines):
+            if pattern.match(line):
                 ret_list.append(index)
         return ret_list
     def combine_search_result(self,lines):
