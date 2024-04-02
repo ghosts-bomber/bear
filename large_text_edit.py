@@ -5,7 +5,8 @@ from PyQt5.QtCore import Qt,pyqtSignal
 import logging
 from text_data import TextData
 from plugin_menu import PluginMenu
-from qfluentwidgets import RoundMenu,Action,MenuAnimationType
+from qfluentwidgets import RoundMenu,Action,MenuAnimationType,SearchLineEdit,ToolButton
+from qfluentwidgets import FluentIcon as FIF
 
 class SearchWidget(QWidget):
     sig_search= pyqtSignal()
@@ -16,6 +17,7 @@ class SearchWidget(QWidget):
         super().__init__(parent)
         self.init_ui()
         self.search_edit.returnPressed.connect(self.send_search_sig)
+        self.search_edit.searchSignal.connect(self.send_search_sig)
         self.down_btn.clicked.connect(self.down_btn_clicked)
         self.up_btn.clicked.connect(self.up_btn_clicked)
         self.show_all_search_btn.clicked.connect(self.show_all_search_btn_clicked)
@@ -23,11 +25,11 @@ class SearchWidget(QWidget):
         self.current_num = 0
         
     def init_ui(self):
-        self.search_edit = QLineEdit(self)
+        self.search_edit = SearchLineEdit(self)
         self.search_label = QLabel(self)
-        self.up_btn = QPushButton("↑",self)
-        self.down_btn = QPushButton("↓",self)
-        self.show_all_search_btn = QPushButton("all",self)
+        self.up_btn = ToolButton(FIF.UP,self)
+        self.down_btn = ToolButton(FIF.DOWN,self)
+        self.show_all_search_btn = ToolButton(FIF.QUICK_NOTE,self)
         self.h_layout = QHBoxLayout(self)
         
         self.h_layout.addStretch()
@@ -37,6 +39,12 @@ class SearchWidget(QWidget):
         self.h_layout.addWidget(self.down_btn)
         self.h_layout.addWidget(self.show_all_search_btn)
         self.h_layout.setContentsMargins(0,0,0,0)
+
+        wh = 30
+        self.up_btn.setFixedSize(wh,wh)
+        self.down_btn.setFixedSize(wh,wh)
+        self.show_all_search_btn.setFixedSize(wh,wh)
+        
 
     def set_search_focus(self):
         self.search_edit.setFocus()
