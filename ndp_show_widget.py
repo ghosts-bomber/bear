@@ -157,7 +157,7 @@ class AIPInfoWidget(QWidget):
 
         self.splitter.addWidget(self.log_show_widget)
         self.h_layout.addWidget(self.splitter)
-        self.splitter.setSizes([300,700])
+        self.splitter.setSizes([230,770])
 
 
     def set_aip_info(self,aip,error_time,error_info,log_list,record_list):

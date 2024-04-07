@@ -34,6 +34,12 @@ class Config:
     def get_login_pwd(self)->str:
         return self.config_data['pwd']
 
+    def get_jira_user(self)->str:
+        return self.config_data['jira_user']
+
+    def get_jira_pwd(self)->str:
+        return self.config_data['jira_pwd']
+
     def get_auto_login(self)->bool:
         return self.config_data['auto_login']
 

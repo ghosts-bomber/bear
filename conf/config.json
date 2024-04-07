@@ -1,6 +1,8 @@
 {
     "user": "",
     "pwd": "",
+    "jira_user":"",
+    "jira_pwd":"",
     "auto_login": false,
     "remember_pwd": true,
     "tmp_path": "./tmp"
