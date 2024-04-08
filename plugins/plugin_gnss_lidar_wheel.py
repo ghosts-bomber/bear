@@ -24,6 +24,7 @@ class GnssLidarWheelStatic(IPlugin):
     def Process(self,text_data)->typing.List['IResult']:
         self.results:typing.List['IResult'] = []
         self.results.append(TextResult('gnss、雷达频率、轮速绘图'))
+        self.results = self.results + self.get_common_result('行驶中触发升降级','雷达nan点过高导致 / 雷达帧率不足导致 / 串口数据延迟导致')
 
         originLog = text_data.get_lines()
 

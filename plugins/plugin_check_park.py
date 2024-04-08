@@ -14,6 +14,7 @@ class CheckPark(IPlugin):
         item = TextResult()
         item.SetResult('升降级检测')
         results.append(item)
+        results = results + self.get_common_result('行驶中触发升降级','')
         for i,line in enumerate(text_data.get_lines()):
             if line.find('[reason:')!=-1 and line.find('[reason: ]')==-1:
                 results.append(TextWithNumResult(i+1,line))
@@ -21,4 +22,5 @@ class CheckPark(IPlugin):
                 results.append(TextWithNumResult(i+1,line))
                 
         return results
+
 

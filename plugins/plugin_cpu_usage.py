@@ -18,6 +18,7 @@ class CpuUsage(IPlugin):
         item = TextResult()
         item.SetResult('cpu使用率绘图')
         results.append(item)
+        results = results + self.get_common_result('行驶中触发升降级','cpu使用率异常')
 
         start_time="00:00:00"
         end_time="23:59:59"

@@ -15,6 +15,7 @@ class CheckWheel(IPlugin):
         item = TextResult()
         item.SetResult('定位左右轮速异常检测')
         results.append(item)
+        results = results + self.get_common_result('行驶中触发升降级','左右轮速异常')
         for i,line in enumerate(text_data.get_lines()):
             if line.find('wheel speed lf:')!=-1 or line.find('PilotErrorLevel: 2')!=-1 or line.find('fl_valid or fr_valid is invalid')!=-1:
                 results.append(TextWithNumResult(i,line))
