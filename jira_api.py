@@ -1,6 +1,7 @@
 from jira import JIRA
 from config import Config
 import time
+from io import BytesIO, BufferedReader
 class JiraApi:
     def __init__(self) -> None:
         self.config = Config()
@@ -41,10 +42,19 @@ class JiraApi:
         issue = self.get_issue(aip)
         self.jira.add_comment(issue,comment)
 
-    def add_issue_attachment(self,aip:str,attachment_path:str,attachment_name:str):
+    def add_issue_attachment_use_file(self,aip:str,attachment_path:str,attachment_name:str):
         issue = self.get_issue(aip)
         with open(attachment_path,'rb') as f:
             self.jira.add_attachment(issue=issue,attachment=f,filename=attachment_name)
+
+    def add_issue_attachment_use_bytes(self,aip:str,data:bytes,attachment_name:str):
+        issue = self.get_issue(aip)
+        reader = BytesIO(data)        
+        self.jira.add_attachment(issue=issue,attachment=reader,filename=attachment_name)
+
+    def add_issue_attachment_use_data(self,aip:str,data:str,attachment_name:str):
+        issue = self.get_issue(aip)
+        self.jira.add_attachment(issue=issue,attachment=data,filename=attachment_name)
 
     def get_image_attachment_comment(self,attachment_name:str)->str:
         return f'!{attachment_name}|thumbnail!'
