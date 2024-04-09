@@ -1,7 +1,9 @@
 from jira import JIRA
 from config import Config
-import time
 from io import BytesIO, BufferedReader
+from singleton import singleton
+
+@singleton
 class JiraApi:
     def __init__(self) -> None:
         self.config = Config()
@@ -58,12 +60,6 @@ class JiraApi:
 
     def get_image_attachment_comment(self,attachment_name:str)->str:
         return f'!{attachment_name}|thumbnail!'
-
-        # with open('./cyber_shm.vpd-Page-3.png','rb') as f:
-        #     self.jira.add_attachment(issue=issue,attachment=f,filename='11122.png')
-        # for item in issue.fields.attachment:
-        #     print(item)
-        # self.jira.add_comment(issue, "Comment text:\n !11122.png|thumbnail!")
 
 if __name__ == "__main__":
     jira_api = JiraApi()
