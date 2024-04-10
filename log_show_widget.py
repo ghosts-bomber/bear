@@ -110,6 +110,12 @@ class LogTextProcessWidget(QWidget):
     
     def show_result(self,results):
         self.plugin_result_view.show()
+        # move corsor to end
+        cursor = self.plugin_result_view.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        # save last result end postion
+        position = cursor.position()
+        self.plugin_result_view.setTextCursor(cursor)
         for item in results:
             if item.GetResultType() == ResultType.TEXT or item.GetResultType() == ResultType.TEXT_AND_NUM:
                 self.plugin_result_view.append(item.GetResult())
@@ -120,6 +126,10 @@ class LogTextProcessWidget(QWidget):
                 # cursor.movePosition(QTextCursor.End)
                 # cursor.insertImage(item.GetResult())
         self.plugin_result_view.append('\n\n')
+        # move cursor to last result end
+        cursor.setPosition(position)
+        cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, 4)
+        self.plugin_result_view.setTextCursor(cursor)
 
     def insert_image(self, image: QImage, fmt: str = "png"):
         data = QByteArray()

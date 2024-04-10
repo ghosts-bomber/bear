@@ -5,11 +5,12 @@ import logging
 from tools import Tools
 from PyQt5.QtWidgets import QMessageBox,QApplication, QTextEdit,QWidget,QPushButton,QHBoxLayout,QVBoxLayout,QFileDialog,QSplitter,QDialog
 from PyQt5.QtCore import Qt,pyqtSignal,QEvent,QMimeData,QFile, QIODevice, QByteArray,QBuffer,QFileInfo,QUrl,QIODevice
-from PyQt5.QtGui import QImage, QImageReader, QTextDocumentFragment
+from PyQt5.QtGui import QImage, QImageReader, QTextDocumentFragment,QTextOption
 from qfluentwidgets import InfoBar,InfoBarPosition,PushButton
 class TextEdit(QTextEdit):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
+        self.setWordWrapMode(QTextOption.NoWrap)
     def canInsertFromMimeData(self, source: QMimeData) -> bool:
         return source.hasImage() or source.hasUrls() or \
                super(TextEdit, self).canInsertFromMimeData(source)
