@@ -40,22 +40,18 @@ class JiraApi:
         # print (issue.fields.issuetype.avatarId)  #类型ID
         # print (issue.fields.priority)  #优先级
 
-    def add_issue_comment(self,aip:str,comment:str):
-        issue = self.get_issue(aip)
+    def add_issue_comment(self,issue,comment:str):
         self.jira.add_comment(issue,comment)
 
-    def add_issue_attachment_use_file(self,aip:str,attachment_path:str,attachment_name:str):
-        issue = self.get_issue(aip)
+    def add_issue_attachment_use_file(self,issue,attachment_path:str,attachment_name:str):
         with open(attachment_path,'rb') as f:
             self.jira.add_attachment(issue=issue,attachment=f,filename=attachment_name)
 
-    def add_issue_attachment_use_bytes(self,aip:str,data:bytes,attachment_name:str):
-        issue = self.get_issue(aip)
+    def add_issue_attachment_use_bytes(self,issue,data:bytes,attachment_name:str):
         reader = BytesIO(data)        
         self.jira.add_attachment(issue=issue,attachment=reader,filename=attachment_name)
 
-    def add_issue_attachment_use_data(self,aip:str,data:str,attachment_name:str):
-        issue = self.get_issue(aip)
+    def add_issue_attachment_use_data(self,issue,data:str,attachment_name:str):
         self.jira.add_attachment(issue=issue,attachment=data,filename=attachment_name)
 
     def get_image_attachment_comment(self,attachment_name:str)->str:

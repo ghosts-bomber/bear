@@ -22,3 +22,6 @@ class Tools:
         elif os.name == 'posix':
             subprocess.call(('xdg-open', file_path))
 
+    @staticmethod
+    def get_jira_visit_link(aip:str):
+        return f'https://jira.neolix.net/browse/{aip}'

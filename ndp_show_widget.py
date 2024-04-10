@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QLabel, QHeaderView,QStackedWidget, QTableView,QWidget,QHBoxLayout,QVBoxLayout,QGridLayout,QSplitter
-from PyQt5.QtCore import QModelIndex, Qt,pyqtSignal
+from PyQt5.QtCore import QModelIndex, QUrl, Qt,pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QStandardItemModel,QStandardItem
-from qfluentwidgets import SearchLineEdit,ComboBox,Flyout,InfoBarIcon,TableView,RoundMenu,Action,TabBar,TabCloseButtonDisplayMode,SegmentedToolWidget
+from qfluentwidgets import SearchLineEdit,ComboBox,Flyout,InfoBarIcon,TableView,RoundMenu,Action,TabBar,TabCloseButtonDisplayMode,Pivot,HyperlinkLabel
 from qfluentwidgets import FluentIcon as FIF
 from cyber_record.record import logging
-from ndp_data import NDPApi
+from ndp_data import NDPApi,AIPInfo
 from config import Config
 import tarfile
 import os
@@ -16,7 +16,7 @@ from text_data import TextData
 from log_show_widget import LogShowWidget
 from jira_comment_widget import JiraCommentWidget
 class SearchAIPWidget(QWidget):
-    sig_aip_info = pyqtSignal(str,str,str,list,list)
+    sig_aip_info = pyqtSignal(AIPInfo,list,list)
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.init_ui()
@@ -47,10 +47,10 @@ class SearchAIPWidget(QWidget):
             s_type = 'GC'
         if aip:
             ndp_api = NDPApi()
-            aip_id,error_time,error_info = ndp_api.search_api(aip,s_type)
-            if aip_id:
-                log_list,record_list = ndp_api.aip_info(aip_id)
-                self.sig_aip_info.emit(aip,error_time,error_info,log_list,record_list)
+            aip_info= ndp_api.search_api(aip,s_type)
+            if aip_info:
+                log_list,record_list = ndp_api.aip_info(aip_info.aip_id)
+                self.sig_aip_info.emit(aip_info,log_list,record_list)
                 # TODO delete self
             else:
                 logging.error("can't find {}".format(aip))
@@ -115,9 +115,9 @@ class AIPInfoWidget(QWidget):
         self.left_stack_widget = QStackedWidget(self)
         self.left_widget = QWidget(self)
         self.left_widget.setLayout(self.v_layout)
-        self.tool_widget = SegmentedToolWidget(self)
+        self.pivot_widget = Pivot(self)
         self.v_layout.addWidget(self.left_stack_widget)
-        self.v_layout.addWidget(self.tool_widget)
+        self.v_layout.addWidget(self.pivot_widget)
 
         self.aip_widget = QWidget(self)
         self.jira_comment_widget = JiraCommentWidget(self.aip,self)
@@ -129,12 +129,25 @@ class AIPInfoWidget(QWidget):
         self.splitter.setOrientation(Qt.Orientation.Horizontal)
             
         aip_label_tip = QLabel('aip：',self)
+        car_id_label_tip = QLabel('car id：',self)
+        cyberrt_version_label_tip = QLabel('cyberrt version：',self)
         error_time_tip = QLabel('问题时间点：',self)
         error_info_tip = QLabel('故障描述：',self)
+        dv_label_tip = QLabel('dv：',self)
 
-        self.aip_label = QLabel(self)
+        self.aip_hyperlink_label = HyperlinkLabel(
+            text=self.aip,
+            parent=self
+        )
+
+        self.car_id_label = QLabel(self)
+        self.cyberrt_version_label = QLabel(self)
         self.error_time_label = QLabel(self)
         self.error_info_label = QLabel(self)
+        self.dv_hyperlink_label = HyperlinkLabel(
+            text='看dv，点我',
+            parent=self
+        )
 
         self.log_table = QTableView(self)
         self.record_table = QTableView(self)
@@ -144,11 +157,17 @@ class AIPInfoWidget(QWidget):
         self.box_layout = QGridLayout()
         self.box_layout.setContentsMargins(0,0,0,0)
         self.box_layout.addWidget(aip_label_tip,0,0)
-        self.box_layout.addWidget(self.aip_label,0,1)
-        self.box_layout.addWidget(error_time_tip,1,0)
-        self.box_layout.addWidget(self.error_time_label,1,1)
-        self.box_layout.addWidget(error_info_tip,2,0)
-        self.box_layout.addWidget(self.error_info_label,2,1)
+        self.box_layout.addWidget(self.aip_hyperlink_label,0,1)
+        self.box_layout.addWidget(car_id_label_tip,1,0)
+        self.box_layout.addWidget(self.car_id_label,1,1)
+        self.box_layout.addWidget(cyberrt_version_label_tip,2,0)
+        self.box_layout.addWidget(self.cyberrt_version_label,2,1)
+        self.box_layout.addWidget(error_time_tip,3,0)
+        self.box_layout.addWidget(self.error_time_label,3,1)
+        self.box_layout.addWidget(error_info_tip,4,0)
+        self.box_layout.addWidget(self.error_info_label,4,1)
+        self.box_layout.addWidget(dv_label_tip,5,0)
+        self.box_layout.addWidget(self.dv_hyperlink_label,5,1)
        
     
         self.aip_widget.setLayout(self.aip_v_layout) 
@@ -174,29 +193,33 @@ class AIPInfoWidget(QWidget):
         self.h_layout.addWidget(self.splitter)
         self.splitter.setSizes([230,770])
 
-        self.tool_widget.addItem(
+        self.pivot_widget.addItem(
             routeKey='1',
             onClick=lambda:self.left_stack_widget.setCurrentWidget(self.aip_widget),
-            icon=FIF.MUSIC,
+            text = 'info'
         )
-        self.tool_widget.addItem(
+        self.pivot_widget.addItem(
             routeKey=JIRA_KEY,
             onClick=lambda:self.left_stack_widget.setCurrentWidget(self.jira_comment_widget),
-            icon=FIF.MUSIC,
+            text = 'comment'
         )
-        self.tool_widget.setCurrentItem('1')
+        self.pivot_widget.setCurrentItem('1')
 
 
-    def set_aip_info(self,aip,error_time,error_info,log_list,record_list):
-        self.aip_label.setText(aip)
-        self.error_info_label.setText(error_info)
-        self.error_time_label.setText(error_time)
+    def set_aip_info(self,aip_info,log_list,record_list):
+        # self.aip_label.setText(aip)
+        self.aip_hyperlink_label.setUrl(QUrl(aip_info.jira_link))
+        self.car_id_label.setText(aip_info.car_id)
+        self.cyberrt_version_label.setText(aip_info.cyberrt_version)
+        self.error_info_label.setText(aip_info.remark)
+        self.error_time_label.setText(aip_info.datetime)
+        self.dv_hyperlink_label.setUrl(QUrl(aip_info.dv_link))
     
         for i,iter in enumerate(log_list):
             log_info_item = QStandardItem(iter['name'])
             log_info_item.setData(iter['name'],Qt.ItemDataRole.ToolTipRole)
             log_info_item.setData(iter['objName'],Qt.ItemDataRole.UserRole)
-            if self.check_log_container_error_time(error_time,iter['name']):
+            if self.check_log_container_error_time(aip_info.datetime,iter['name']):
                 log_info_item.setData(QColor('red'),Qt.ItemDataRole.TextColorRole)
             self.log_model.setItem(i,LOG_INFO_COL,log_info_item)
             self.log_model.setItem(i,LOG_SIZE_COL,QStandardItem(str(iter['filesize'])))
@@ -248,7 +271,7 @@ class AIPInfoWidget(QWidget):
     def add_comment(self,content:str):
         self.jira_comment_widget.add_comment(content)
         self.left_stack_widget.setCurrentWidget(self.jira_comment_widget)
-        self.tool_widget.setCurrentItem(JIRA_KEY)
+        self.pivot_widget.setCurrentItem(JIRA_KEY)
 
     def show_log_table_menu(self,pos):
         menu = RoundMenu(self.log_table) 
@@ -301,10 +324,10 @@ class NDPShowWidget(QWidget):
         self.stack_widget.setCurrentWidget(self.search_aip_widget)
         self.search_aip_widget.set_focus()
 
-    def aip_display(self,aip,error_time,error_info,log_list,record_list):
-        self.aip_info_widget = AIPInfoWidget(aip,self)
+    def aip_display(self,aip_info,log_list,record_list):
+        self.aip_info_widget = AIPInfoWidget(aip_info.jira_issue_key,self)
         self.stack_widget.addWidget(self.aip_info_widget)
         self.stack_widget.setCurrentWidget(self.aip_info_widget)
-        self.aip_info_widget.set_aip_info(aip,error_time,error_info,log_list,record_list)
-        self.sig_aip_tab.emit(self.objectName(),aip)
+        self.aip_info_widget.set_aip_info(aip_info,log_list,record_list)
+        self.sig_aip_tab.emit(self.objectName(),aip_info.jira_issue_key)
 

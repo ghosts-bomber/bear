@@ -4,6 +4,16 @@ import logging
 import json
 from singleton import singleton
 
+class AIPInfo:
+    aip_id = ''
+    jira_issue_key = ''
+    car_id = ''
+    cyberrt_version = ''
+    datetime = ''
+    remark = ''
+    jira_link = ''
+    dv_link = ''
+
 @singleton
 class NDPApi:
     base_url = 'http://ndp.data.neolix.cn'
@@ -29,10 +39,9 @@ class NDPApi:
         return False     
 
     def search_api(self,aip:str,s_type=''):
-        none = (None,None,None)
         if not self.token:
             logging.warning("don't have token")
-            return none
+            return None
 
         url = self.base_url+'/service/pro/ndp/aicar/faultReport/page'
         params = {
@@ -53,18 +62,28 @@ class NDPApi:
             total = obj["data"]["total"]
             if total <=0:
                 logging.error("no found aip:{}".format(aip))
-                return none
+                return None
             elif total>1:
                 logging.error("found multi aip:{}".format(aip))
-                return none 
+                return None
                 
             contents = obj["data"]["contents"]
             aip_info = contents[0]
             logging.info("aip:{},aip id:{}".format(aip,aip_info['id']))
-            return aip_info['id'],aip_info['dateTime'],aip_info['remark'] 
+            caip_info = AIPInfo()
+            caip_info.aip_id = aip_info['id']
+            caip_info.jira_issue_key = aip_info['jiraIssueKey']
+            caip_info.car_id = aip_info['carId']
+            caip_info.cyberrt_version = aip_info['carCyberRtVersion']
+            caip_info.datetime = aip_info['dateTime']
+            caip_info.remark = aip_info['remark']
+            caip_info.jira_link = aip_info['jiraIssueLink']
+            caip_info.dv_link = 'http://ndp.data.neolix.cn/neodata/#/dvPlay?recordPath='+aip_info['dvObjName']+ \
+                '&mapName='+aip_info['carMapVersion']+'&carId='+aip_info['carId']+'&version='+aip_info['carCyberRtVersion']
+            return caip_info
         else:
             logging.error("search aip {},code={}".format(aip,res.status_code))
-        return none
+        return None
 
     # @return: list[{filesize,name,objName,updateTime}],list[record_download_url]
     def aip_info(self,aip_id:str):
