@@ -1,5 +1,6 @@
 certifi==2020.6.20
 cyber_record==0.1.12
+jira==3.8.0
 matplotlib==3.7.1
 numpy==1.24.2
 PyQt5==5.15.10
