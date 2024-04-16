@@ -26,7 +26,7 @@ class SearchAIPWidget(QWidget):
     def init_ui(self):
         self.h_layout = QHBoxLayout(self)
         self.type_combox = ComboBox(self)
-        self.type_combox.addItems(['AIP','GC'])
+        self.type_combox.addItems(['AIP','GC','DC'])
         _label = QLabel('-',self)
         self.search_edit = SearchLineEdit(self)
         self.h_layout.setContentsMargins(0,0,0,0)
@@ -42,9 +42,9 @@ class SearchAIPWidget(QWidget):
 
     def search_edit_enter(self):
         aip = self.type_combox.currentText()+'-'+self.search_edit.text()
-        s_type = ''
-        if self.type_combox.currentText()=='GC':
-            s_type = 'GC'
+        s_type = self.type_combox.currentText()
+        # if self.type_combox.currentText()=='GC':
+        #     s_type = 'GC'
         if aip:
             ndp_api = NDPApi()
             aip_info= ndp_api.search_api(aip,s_type)
