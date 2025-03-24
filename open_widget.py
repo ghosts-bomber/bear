@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt,QUrl
 from record_view_widget import RecordViewWidget
 import logging
 from tab_widget import TabWidget
+from log_show_widget import LogShowWidget
 
 class OpenBtnWidget(QWidget):
     def __init__(self, parent: None) -> None:
@@ -33,7 +34,14 @@ class OpenLogWidget(OpenBtnWidget):
         self.btn.clicked.connect(self.open_log_btn_clicked)
 
     def open_log_btn_clicked(self):
-        return;
+        log_path = QFileDialog.getOpenFileName(self)
+        if len(log_path)==0 or len(log_path[0])==0:
+            return
+        logging.debug(f'get open file url:{log_path[0]}')
+        self.log_show_widget = LogShowWidget(self)
+        self.log_show_widget.open_log(log_path[0])
+        self.stack_widget.addWidget(self.log_show_widget)
+        self.stack_widget.setCurrentWidget(self.log_show_widget)
 
     
 class OpenRecordWidget(OpenBtnWidget):

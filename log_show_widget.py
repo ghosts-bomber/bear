@@ -147,9 +147,9 @@ class LogShowWidget(TabWidget):
         super().__init__(parent)
 
     def open_log(self,file_path):
-        with open(file_path,'r') as file:
+        with open(file_path,'rb') as file:
             # TODO don't read all to ram
-            data = file.read()
+            data = file.read().decode(errors='replace')
             text_data = TextData(data)
             log_text_widget = LogTextProcessWidget(text_data,self)
             log_text_widget.sig_select_content.connect(self.sig_select_content)

@@ -48,10 +48,12 @@ class NDPApi:
             'pageIndex':1,
             'pageSize':10,
             'jiraIssueKey':aip,
-            'access_token':self.token
+            'access_token':self.token,
         }
         if s_type:
             params['type'] = s_type
+        if s_type=='SC':
+            params['subTypes'] = 'TBD'
 
         headers = {
             'Authorization':self.token
@@ -59,13 +61,14 @@ class NDPApi:
         res = requests.get(url,params=params,headers=headers)
         if res.status_code ==200:
             obj = json.loads(res.text)
-            total = obj["data"]["total"]
-            if total <=0:
-                logging.error("no found aip:{}".format(aip))
-                return None
-            elif total>1:
-                logging.error("found multi aip:{}".format(aip))
-                return None
+            print(obj)
+            # total = obj["data"]["total"]
+            # if total <=0:
+            #     logging.error("no found aip:{}".format(aip))
+            #     return None
+            # elif total>1:
+            #     logging.error("found multi aip:{}".format(aip))
+            #     return None
                 
             contents = obj["data"]["contents"]
             aip_info = contents[0]
@@ -78,8 +81,8 @@ class NDPApi:
             caip_info.datetime = aip_info['dateTime']
             caip_info.remark = aip_info['remark']
             caip_info.jira_link = aip_info['jiraIssueLink']
-            caip_info.dv_link = 'http://ndp.data.neolix.cn/neodata/#/dvPlay?recordPath='+aip_info['dvObjName']+ \
-                '&mapName='+aip_info['carMapVersion']+'&carId='+aip_info['carId']+'&version='+aip_info['carCyberRtVersion']
+            # caip_info.dv_link = 'http://ndp.data.neolix.cn/neodata/#/dvPlay?recordPath='+aip_info['dvObjName']+ \
+            #     '&mapName='+aip_info['carMapVersion']+'&carId='+aip_info['carId']+'&version='+aip_info['carCyberRtVersion']
             return caip_info
         else:
             logging.error("search aip {},code={}".format(aip,res.status_code))
@@ -102,7 +105,13 @@ class NDPApi:
         if res.status_code ==200:
             # logging.debug(res.text)
             obj = json.loads(res.text)
-            return obj['data']['logFiles'],obj['data']['record3dayLinks']
+            if 'logFiles' in obj['data'] and 'record3dayLinks' in obj['data']: 
+                return obj['data']['logFiles'],obj['data']['record3dayLinks']
+            elif 'logFiles' in obj['data']:
+                return obj['data']['logFiles'],[]
+            elif 'record3dayLinks' in obj['data']:
+                return [],obj['data']['record3dayLinks']
+
         else:
             logging.error("find aip info,aip_id:{},code={}".format(aip_id,res.status_code))
         return None,None

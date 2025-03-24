@@ -26,7 +26,7 @@ class SearchAIPWidget(QWidget):
     def init_ui(self):
         self.h_layout = QHBoxLayout(self)
         self.type_combox = ComboBox(self)
-        self.type_combox.addItems(['AIP','GC','DC'])
+        self.type_combox.addItems(['AIP','GC','DC','SC'])
         _label = QLabel('-',self)
         self.search_edit = SearchLineEdit(self)
         self.h_layout.setContentsMargins(0,0,0,0)
